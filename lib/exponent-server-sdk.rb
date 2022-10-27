@@ -265,8 +265,8 @@ module Exponent
 
       def with_error_handling(response)
         yield(response)
-      rescue KeyError, NoMethodError
-        unknown_error_format(response)
+      rescue KeyError, NoMethodError => e
+        unknown_error_format(response, e)
       end
 
       def validate_error_name(condition)
@@ -279,26 +279,13 @@ module Exponent
         end
       end
 
-      def unknown_error_format(response)
-        Exponent::Push::UnknownError.new("Unknown error format: #{response.respond_to?(:body) ? response.body : response}")
-      end
-
-      ##### DEPRECATED METHODS #####
-
-      # @deprecated
-      def from_erroneous_response(response)
-        error      = response.fetch('errors').first
-        error_name = error.fetch('code')
-        message    = error.fetch('message')
-
-        get_error_class(error_name).new(message)
-      end
-
-      # @deprecated
-      def from_successful_response(response)
-        delivery_result = response.fetch('data').first
-        message         = delivery_result.fetch('message')
-        get_error_class(delivery_result.fetch('details').fetch('error')).new(message)
+      def unknown_error_format(response, e)
+        error_message = e.message
+        error_response_code = response.response_code
+        error_response_body = response.response_body
+        Exponent::Push::UnknownError.new(
+          "Unknown error format: #{e.message} #{error_response_code} #{error_response_body}"
+        )
       end
     end
 
