@@ -135,10 +135,6 @@ module Exponent
         end
       end
 
-      def raw_errors
-        @raw_errors
-      end
-
       def errors?
         @errors.any?
       end
