@@ -102,7 +102,7 @@ module Exponent
     end
 
     class ResponseHandler
-      attr_reader :response, :invalid_push_tokens, :receipt_ids, :errors
+      attr_reader :response, :invalid_push_tokens, :receipt_ids, :errors, :raw_errors
 
       def initialize(error_builder = ErrorBuilder.new)
         @error_builder             = error_builder
@@ -135,7 +135,9 @@ module Exponent
         end
       end
 
-
+      def raw_errors
+        @raw_errors
+      end
 
       def errors?
         @errors.any?
