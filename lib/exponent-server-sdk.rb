@@ -44,13 +44,6 @@ module Exponent
         @gzip             = args[:gzip] == true
       end
 
-      # returns a string response with parsed success json or error
-      # @deprecated
-      def publish(messages)
-        warn '[DEPRECATION] `publish` is deprecated. Please use `send_messages` instead.'
-        @response_handler.handle(push_notifications(messages))
-      end
-
       # returns response handler that provides access to errors? and other response inspection methods
       def send_messages(messages, **args)
         # https://docs.expo.io/versions/latest/guides/push-notifications/#message-format
@@ -109,21 +102,33 @@ module Exponent
     end
 
     class ResponseHandler
-      attr_reader :response, :invalid_push_tokens, :receipt_ids, :errors
+      attr_reader :response, :invalid_push_tokens, :receipt_ids, :errors, :raw_errors
 
       def initialize(error_builder = ErrorBuilder.new)
-        @error_builder       = error_builder
-        @response            = nil
-        @receipt_ids         = []
-        @invalid_push_tokens = []
-        @errors              = []
+        @error_builder             = error_builder
+        @response                  = nil
+        @receipt_ids               = []
+        @invalid_push_tokens       = []
+        @errors                    = []
+        @raw_errors                = []
       end
 
       def process_response(response)
         @response = response
 
         case response.code.to_s
+        when '504'
+          # NOTE: Raise specific error so app knows to retry the request.
+          raise Exponent::Push::GatewayTimeout.new(
+            "Request timed out: #{response.code} #{response.response_body}"
+          )
+        when '400'
+          # NOTE: The app will want to handle expo server error response differently.
+          # Responding with an object that exposes what the expo server errored with.
+          @raw_errors = body.fetch('errors', [])
         when /(^4|^5)/
+          # NOTE: Catch-all in case we do not get a 400 or 504 error. This will raise unknown
+          # error with information on what the issue was.
           raise @error_builder.parse_response(response)
         else
           sort_results
@@ -132,18 +137,6 @@ module Exponent
 
       def errors?
         @errors.any?
-      end
-
-      # @deprecated
-      def handle(response)
-        warn '[DEPRECATION] `handle` is deprecated. Please use `process_response` instead.'
-        @response = response
-        case response.code.to_s
-        when /(^4|^5)/
-          raise build_error_from_failure
-        else
-          extract_data
-        end
       end
 
       private
@@ -199,39 +192,6 @@ module Exponent
       rescue StandardError
         # Prevent nil errors in old version of ruby when using fetch
         @body = {}
-      end
-
-      ##### DEPRECATED METHODS #####
-
-      # @deprecated
-      def build_error_from_failure
-        @error_builder.build_from_erroneous(body)
-      end
-
-      # @deprecated
-      def extract_data
-        data = body.fetch('data')
-        if data.is_a? Hash
-          validate_status(data.fetch('status'), body)
-          data
-        elsif data.is_a? Array
-          data.map do |receipt|
-            validate_status(receipt.fetch('status'), body)
-            receipt
-          end
-        else
-          {}
-        end
-      end
-
-      # @deprecated
-      def validate_status(status, response)
-        raise build_error_from_success(response) unless status == 'ok'
-      end
-
-      # @deprecated
-      def build_error_from_success(response)
-        @error_builder.build_from_successful(response)
       end
     end
 
@@ -293,7 +253,7 @@ module Exponent
 
     def self.error_names
       %w[DeviceNotRegistered MessageTooBig
-         MessageRateExceeded InvalidCredentials
+         MessageRateExceeded InvalidCredentials GatewayTimeout
          Unknown]
     end
 
