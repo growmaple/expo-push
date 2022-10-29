@@ -119,7 +119,7 @@ module Exponent
         case response.code.to_s
         when '504'
           # NOTE: Raise specific error so app knows to retry the request.
-          raise Exponent::Push::GatewayTimeout.new(
+          raise Exponent::Push::GatewayTimeoutError.new(
             "Request timed out: #{response.code} #{response.response_body}"
           )
         when '400'
