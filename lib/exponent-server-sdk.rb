@@ -122,6 +122,11 @@ module Exponent
           raise Exponent::Push::GatewayTimeoutError.new(
             "Request timed out: #{response.code} #{response.response_body}"
           )
+        when '502'
+          # NOTE: Raise specific error so app knows to retry the request.
+          raise Exponent::Push::BadGatewayError.new(
+            "Request timed out: #{response.code} #{response.response_body}"
+          )
         when '400'
           # NOTE: The app will want to handle expo server error response differently.
           # Responding with an object that exposes what the expo server errored with.
@@ -254,7 +259,7 @@ module Exponent
     def self.error_names
       %w[DeviceNotRegistered MessageTooBig
          MessageRateExceeded InvalidCredentials GatewayTimeout
-         Unknown]
+         BadGateway Unknown]
     end
 
     error_names.each do |error_name|
