@@ -1,14 +1,14 @@
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'exponent-server-sdk/version'
+require 'expo-push/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'exponent-server-sdk'
   spec.version       = Exponent::VERSION
-  spec.authors       = ['Jesse Ruder', 'Pablo Gomez']
-  spec.email         = ['jesse@sixfivezero.net', 'pablonahuelgomez@gmail.com']
-  spec.summary       = %q{Exponent Server SDK}
-  spec.description   = %q{Exponent Server SDK}
+  spec.authors       = ['Jesse Ruder', 'Pablo Gomez', 'Mike Taylor']
+  spec.email         = ['jesse@sixfivezero.net', 'pablonahuelgomez@gmail.com', 'mike.taylor@growmaple.com']
+  spec.summary       = %q{Expo Push}
+  spec.description   = %q{Expo Push}
   spec.homepage      = ''
   spec.license       = 'MIT'
 

@@ -1,5 +1,5 @@
-require 'exponent-server-sdk/version'
-require 'exponent-server-sdk/too_many_messages_error'
+require 'expo-push/version'
+require 'expo-push/too_many_messages_error'
 require 'typhoeus'
 require 'json'
 
