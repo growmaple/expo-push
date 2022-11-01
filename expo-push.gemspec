@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'expo-push/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'exponent-server-sdk'
+  spec.name          = 'expo-push'
   spec.version       = Exponent::VERSION
   spec.authors       = ['Jesse Ruder', 'Pablo Gomez', 'Mike Taylor']
   spec.email         = ['jesse@sixfivezero.net', 'pablonahuelgomez@gmail.com', 'mike.taylor@growmaple.com']
