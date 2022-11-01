@@ -10,7 +10,7 @@ Use to send push notifications to Exponent Experiences from a Ruby server.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'exponent-server-sdk'
+gem 'expo-push'
 ```
 
 And then execute:
@@ -22,7 +22,7 @@ $ bundle
 Or install it yourself as:
 
 ```shell
-$ gem install exponent-server-sdk
+$ gem install expo-push
 ```
 
 ## Usage
