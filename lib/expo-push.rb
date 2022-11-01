@@ -118,14 +118,17 @@ module Exponent
 
         case response.code.to_s
         when '504'
-          # NOTE: Raise specific error so app knows to retry the request.
           raise Exponent::Push::GatewayTimeoutError.new(
-            "Request timed out: #{response.code} #{response.response_body}"
+            "#{response.code} #{response.response_body}"
+          )
+        when '503'
+          raise Exponent::Push::UpstreamConnectError.new(
+            "#{response.code} #{response.response_body}"
           )
         when '502'
           # NOTE: Raise specific error so app knows to retry the request.
           raise Exponent::Push::BadGatewayError.new(
-            "Request timed out: #{response.code} #{response.response_body}"
+            "#{response.code} #{response.response_body}"
           )
         when '400'
           # NOTE: The app will want to handle expo server error response differently.
@@ -259,7 +262,7 @@ module Exponent
     def self.error_names
       %w[DeviceNotRegistered MessageTooBig
          MessageRateExceeded InvalidCredentials GatewayTimeout
-         BadGateway Unknown]
+         BadGateway UpstreamConnect Unknown]
     end
 
     error_names.each do |error_name|
