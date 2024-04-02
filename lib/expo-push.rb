@@ -38,6 +38,7 @@ module Exponent
     class Client
       def initialize(**args)
         @http_client = args[:http_client] || Typhoeus
+        @params = args[:params].presence || {}
         @error_builder = ErrorBuilder.new
         # future versions will deprecate this
         @response_handler = args[:response_handler] || ResponseHandler.new
@@ -70,6 +71,7 @@ module Exponent
         @http_client.post(
           push_url,
           body: messages.to_json,
+          params: @params,
           headers: headers,
           accept_encoding: @gzip
         )
